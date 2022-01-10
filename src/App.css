@@ -1,5 +1,285 @@
-.App {
+/* .navbar .navbar-nav {
+  display: inline-block;
+  float: none;
+  vertical-align: top;
+}
+
+.navbar .navbar-collapse {
   text-align: center;
+} */
+
+.job-image {
+
+}
+
+.delete-image-btn {
+  background-color: #670404;
+  color:white;
+  padding: 5px;
+  border: 1px solid #333;
+  text-align: center;
+}
+
+.job-image-list {
+  overflow: auto;
+}
+.form-control {
+  background: none !important;
+  color: #fff !important;
+  padding: 15px !important;
+}
+
+
+
+.App {
+  font-family: 'Prompt', sans-serif;
+}
+
+.table thead tr th, .table tbody tr td {
+    border: none;
+}
+
+
+.pro-title {
+  color: #9b9b9b;
+  padding-top: 20px;
+}
+
+.pro-value {
+ color: #e3e3e3;
+ padding-top: 20px;
+}
+
+#profile-image {
+  border-radius: 50px;
+}
+.block-item {
+
+}
+
+.name-info>p :first-child {
+  margin-top: 10px;
+}
+.name-info{
+  text-align: left;
+}
+
+#name {
+  padding-top: 20px;
+  font-weight: bold;
+  line-height: 0.2;
+}
+
+.profile-btn {
+  background: #333;
+  color: white;
+  padding: 10px;
+  border-radius: 15px;
+  margin-top: -2px;
+  font-size: 14px;
+}
+
+.main-menu {
+  display: flex;
+  justify-content: space-around;
+}
+
+.room-selection-container {
+  border: 1px solid white;
+  height: 200px;
+  overflow: auto;
+}
+
+.room-selection-building {
+  display: flex;
+  flex-wrap: wrap;
+  gap:20px;
+}
+
+.room-item {
+  width: 109px;
+  height: 70px;
+  color: #f2c66f;
+  border-radius: 20px;
+  align-items:center;
+  border: solid 2px #f2c66f;
+  text-align: center;
+}
+
+.menu-item {
+  border: solid 2px #ffd800;
+  width: 100px;
+  height: 120px;
+  border-radius: 15px;
+  text-align: center;
+  padding: 10px;
+}
+
+.small-box {
+  border: solid 2px #ffd800;
+  padding: 15px 10px 0 10px;
+  border-radius: 15px;
+}
+
+.small-box p {
+  font-size: 10px;
+}
+
+.menu-item-sub {
+  font-size: 12px;
+  margin-top: 7px;
+}
+
+.menu-item> :first-child {
+  margin-top: 10px;
+}
+
+.user-profile-container {
+  background-color: #333 !important;
+  /* width: 100vh; */
+  color: #ffd800;
+  /* padding-bottom: 100px !important; */
+  height: 100%;
+}
+
+
+.timetable tbody {
+  display: block;
+  max-height: 450px;
+  overflow-y: scroll;
+}
+
+table thead, table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.profile-block {
+  background-color: #f2c66f;
+  color: #333;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px 10px;
+  margin: auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#month-title {
+  background-color: #f2c66f;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin: 0 50px;
+  margin-top: -8px;
+  font-size: 25px;
+}
+
+.profile-view-block {
+}
+
+.employee-id {
+  color: #ffd800;
+  background-color: #333 !important;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.circle-head {
+  border: solid 2px #ffd800;
+  height: 180px;
+  width: 180px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: 90px;
+  background: #262626;
+  color: white;
+}
+
+.circle-head>p:first-child {
+  margin-top: 30px;
+}
+
+#lastest-update-time {
+  margin-top: -10px;
+  font-size: 12px;
+  color: grey
+}
+
+
+.container {
+              width: 100%;
+              padding: 0 20px;
+              display: block;
+              margin-left: auto;
+              margin-right: auto;
+
+          }
+          .full-graph {
+            width: 760px;
+          }
+
+          .green-text {
+            color: #097E09;
+          }
+
+          .text-right {
+            text-align: right;
+          }
+
+          .flex-container {
+            display: flex;
+            justify-content: space-around;
+
+          }
+
+          .flex-1 {
+            border: 1px solid #e3e3e3;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 0 15px;
+            flex-grow: 1;
+          }
+
+          .flex-2 {
+            border: 2px solid #097E09;
+            border-radius: 50%;
+            margin: 0 15px;
+            text-align: center;
+            padding-top: 20px;
+            height: 110px;
+            width: 110px;
+          }
+
+          .sm-text {
+            font-size: 12px;
+          }
+
+          .sub-color {
+            color: #5e5e5e;
+          }
+
+          @media (max-width: 768px) {
+            .container {
+              width: 480px;
+            }
+            .full-graph {
+              width: 400px;
+            }
+        }
+
+
+
+.my-custom-scrollbar {
+position: relative;
+height: 400px;
+overflow: auto;
+}
+.table-wrapper-scroll-y {
+display: block;
 }
 
 .App-logo {
