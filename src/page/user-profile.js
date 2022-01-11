@@ -9,7 +9,8 @@ import {
   faUser, faCalendarAlt, faHome, faTools, faFileInvoiceDollar,faBullhorn, faPencilAlt
  } from '@fortawesome/free-solid-svg-icons'
 import { IP,
-  getEmployeeProfileByLineId
+  getEmployeeProfileByLineId,
+  updatePhoneByUserId
  } from './../tunnel'
 
 
@@ -21,16 +22,28 @@ export default class UserProfile extends React.Component {
       page: 'main',
       name: '',
       id: '',
-      imageUrl: 'person.png'
+      imageUrl: 'person.png',
+      department: '',
+      role: '',
+      phone: '',
+      startJob: '',
+      workingTimeText: ''
     }
   }
 
   componentDidMount(){
     getEmployeeProfileByLineId({id: this.props.id}, res => {
       if(res.status){
-        alert('es')
+        this.setState(() => (res.employee))
       }else{
         // window.location.replace("http://192.168.100.32:3000/");
+        Swal.fire({
+          'title': res.msg,
+          'icon': 'danger',
+          color: 'white',
+          background: '#333',
+          confirmButtonText: 'ปิด',
+        })
       }
     })
   }
@@ -52,11 +65,11 @@ export default class UserProfile extends React.Component {
             <div className="col-12">
               <div className="profile-block">
                 <div className="block-item">
-                  <img id="profile-image" src={`https://tunit3-samed.ap.ngrok.io/public/employee/${this.state.imageUrl}`} width="60px" height="60px" />
+                  <img id="profile-image" src={`${IP}/public/employee/${this.state.imageUrl !== null ? this.state.imageUrl : 'person.png'}`} width="60px" height="60px" />
                 </div>
                 <div className="block-item name-info">
-                  <p id="name">Jetawat Sattyayay</p>
-                  <p>ID: {this.props.id}</p>
+                  <p id="name">{this.state.name}</p>
+                  <p>ID: {this.state.id}</p>
                 </div>
                 <div className="block-item">
                   <div onClick={() => this.changePage('profile')} className="profile-btn">
@@ -69,8 +82,8 @@ export default class UserProfile extends React.Component {
           <div className="row mt-4">
             <div className="col-12">
               <div className="circle-head">
-                <p>ยอดเงิน</p>
-                <p>12,351,541 บาท</p>
+                <p>เวลาสะสม</p>
+                <p>{this.state.workingTimeText}</p>
                 <p id="lastest-update-time"><FontAwesomeIcon icon={faUndoAlt} /> {moment().format('hh:mm A')}</p>
               </div>
             </div>
@@ -107,7 +120,15 @@ export default class UserProfile extends React.Component {
         </div>
         }
         {
-          this.state.page === 'profile' && <ProfileView changePage={this.changePage} />
+          this.state.page === 'profile' && <ProfileView
+          id={this.state.id}
+          name={this.state.name}
+          phone={this.state.phone}
+          imageUrl={this.state.imageUrl}
+          department={this.state.department}
+          role={this.state.role}
+          startJob={this.state.startJob}
+          changePage={this.changePage} />
 
         }
         {
@@ -626,13 +647,14 @@ class TimetableView extends React.Component {
 class ProfileView extends React.Component {
   constructor(props){
     super(props)
+    let phone = this.props.phone
     this.state = {
-
+      phone
     }
   }
 
   editPhone = async () => {
-    let billNameResponse = await Swal.fire({
+    let phoneInput = await Swal.fire({
       'title': 'เบอร์ติดต่อ',
       'input': 'text',
       color: 'white',
@@ -643,29 +665,64 @@ class ProfileView extends React.Component {
       showCancelButton: true,
       inputValidator: (value) => new Promise((resolve, reject) => {
         if(value === ''){
-          resolve('กรุณาใส่ชื่อรายการ')
+          resolve('กรุณาเบอร์ติดต่อ')
         }else{
           resolve()
         }
       })
     })
-    console.log(billNameResponse);
+    if(phoneInput.isConfirmed){
+      updatePhoneByUserId({id: this.props.id, phone: phoneInput.value}, res => {
+        if(res.status){
+          Swal.fire({
+            'title': 'เบอร์ติดต่อของคุณได้เปลี่ยนแล้ว',
+            'icon': 'success',
+            color: 'white',
+            background: '#333',
+            confirmButtonText: 'ปิด',
+          })
+          this.setState(() => ({
+            phone: phoneInput.value
+          }))
+        }else{
+          Swal.fire({
+            'title': res.msg,
+            'icon': 'success',
+            color: 'white',
+            background: '#333',
+            confirmButtonText: 'ปิด',
+          })
+        }
+      })
+    }
   }
 
   render(){
+    moment(this.props.startJob, 'DD/MM/YYYY')
+    var start = moment(this.props.startJob, 'DD/MM/YYYY');
+    var end = moment()
+
+    var years = end.diff(start, 'year');
+    start.add(years, 'years');
+
+    var months = end.diff(start, 'months');
+    start.add(months, 'months');
+
+    var days = end.diff(start, 'days');
+    let workSince = years + ' years ' + months + ' months ' + days + ' days'
     return (
       <div className="row px-3">
         <div className="mt-4 d-flex flex-column justify-content-center align-items-center">
-          <img id="profile-image" src="https://tunit3-samed.ap.ngrok.io/public/employee/BS0001.jpg" width="120px" height="120px" />
-          <h5 className="mt-2">Jetawat Sattayapan</h5>
-          <span className="mt-2" style={{ fontWeight: 'bold', background: '#f2c66f',color: 'black', padding: '5px 10px', borderRadius: '5px' }}>BS0001</span>
+          <img id="profile-image" src={`${IP}/public/employee/${this.props.imageUrl !== null ? this.props.imageUrl : 'person.png'}`} width="120px" height="120px" />
+          <h5 className="mt-2">{this.props.name}</h5>
+          <span className="mt-2" style={{ fontWeight: 'bold', background: '#f2c66f',color: 'black', padding: '5px 10px', borderRadius: '5px' }}>{this.props.id}</span>
         </div>
         <div className="d-flex justify-content-center">
           <table style={{width: '80%'}} className="">
             <tbody>
               <tr>
                 <td className="pro-title">Phone:</td>
-                <td className="pro-value">097-118-9518 <FontAwesomeIcon onClick={this.editPhone} color="grey" icon={faPencilAlt} /></td>
+                <td className="pro-value">{this.state.phone} <FontAwesomeIcon onClick={this.editPhone} color="grey" icon={faPencilAlt} /></td>
               </tr>
               <tr>
                 <td className="pro-title">DOB:</td>
@@ -673,15 +730,15 @@ class ProfileView extends React.Component {
               </tr>
               <tr>
                 <td className="pro-title">Employee Since:</td>
-                <td className="pro-value">3 Years 132 Days</td>
+                <td className="pro-value">{workSince}</td>
               </tr>
               <tr>
                 <td className="pro-title">Department:</td>
-                <td className="pro-value">Programer</td>
+                <td className="pro-value">{this.props.department}</td>
               </tr>
               <tr>
-                <td className="pro-title">Status:</td>
-                <td className="pro-value">Permanent</td>
+                <td className="pro-title">Position:</td>
+                <td className="pro-value">{this.props.role}</td>
               </tr>
             </tbody>
           </table>

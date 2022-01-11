@@ -23,6 +23,9 @@ function makeGetRequest(route, callback){
 
 
 
+export const updatePhoneByUserId = (data, callback) => {
+  makePostRequest('hr/updatePhoneByUserId', data, res => callback(res))
+}
 
 export const getEmployeeProfileByLineId = (data, callback) => {
   makePostRequest('hr/getEmployeeProfileByLineId', data, res => callback(res))
