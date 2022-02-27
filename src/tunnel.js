@@ -23,6 +23,45 @@ function makeGetRequest(route, callback){
 
 
 
+
+///
+
+
+
+export const getItems = (callback) => {
+  makeGetRequest('stock/getItems', res => callback(res))
+}
+
+/////
+
+
+export const getNoneRecipeMenuItems = (callback) => {
+  makeGetRequest('restaurant/getNoneRecipeMenuItems', res => callback(res))
+}
+
+
+export const deleteIngredientFromRecipe = (data, callback) => {
+  makePostRequest('restaurant/deleteIngredientFromRecipe', data, res => callback(res))
+}
+
+export const submitIngredientToRecipe = (data, callback) => {
+  makePostRequest('restaurant/submitIngredientToRecipe', data, res => callback(res))
+}
+
+export const getRecipes = (callback) => {
+  makeGetRequest('restaurant/getRecipes', res => callback(res))
+}
+
+export const submitNewRecipe = (data, callback) => {
+  makePostRequest('restaurant/submitNewRecipe', data, res => callback(res))
+}
+export const getRecipe = (data, callback) => {
+  makePostRequest('restaurant/getRecipe', data, res => callback(res))
+}
+
+////
+
+
 export const updatePhoneByUserId = (data, callback) => {
   makePostRequest('hr/updatePhoneByUserId', data, res => callback(res))
 }

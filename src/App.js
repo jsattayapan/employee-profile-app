@@ -15,7 +15,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import resImage from './icons/restaurant.png'
 import breakfastImage from './icons/breakfast.png'
 import profitImage from './icons/profits.png'
-import UserProfile from './page/user-profile'
 import ReactDOM from "react-dom";
 import {
   BrowserRouter,
@@ -24,6 +23,8 @@ import {
   useParams
 } from "react-router-dom";
 
+import Recipe from './page/recipe'
+ import UserProfile from './page/user-profile'
 
 import { IP, getJobList, createNewJob
  } from './tunnel'
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/" element={<TestFrame />} />
           <Route path="/user-profile/:id" element={<UserProfileHook />} />
+          <Route path="/recipe" element={<Recipe />} />
       </Routes>
     </BrowserRouter>
     </div>
