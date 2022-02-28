@@ -8,6 +8,21 @@
   text-align: center;
 } */
 
+
+.subMenuLi{
+  cursor: pointer;
+}
+
+.personIconActive{
+  border: 2px solid #3ac952;
+  border-radius: 50%;
+}
+
+.personIconInactive{
+  border: 2px solid #ff0000;
+  border-radius: 50%;
+}
+
 .job-image {
 
 }

@@ -35,8 +35,8 @@ export const getItems = (callback) => {
 /////
 
 
-export const getEmployeeListForHr = (callback) => {
-  makeGetRequest('hr/getEmployeeListForHr', res => callback(res))
+export const getEmployeeListForHr = (data, callback) => {
+  makePostRequest('hr/getEmployeeListForHr', data, res => callback(res))
 }
 ///////
 

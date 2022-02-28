@@ -2,6 +2,13 @@ import React from 'react'
 import Select from 'react-select'
 import validator from 'validator';
 import numeral from 'numeral'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Swal from 'sweetalert2'
+import {
+  faPen,
+  faSave,
+  faUndoAlt
+ } from '@fortawesome/free-solid-svg-icons'
 
 import { IP,
   getEmployeeListForHr
@@ -11,19 +18,281 @@ export default class EmployeeListForHr extends React.Component {
   constructor(props){
     super(props)
     this.state = {
+      employeeId: 'BS0001'
+    }
+  }
+
+  setEmployee = (id = '') => {
+    this.setState(() => ({
+      employeeId: id
+    }))
+  }
+
+  render(){
+    let { employeeId } = this.state
+    return(
+      <div className="container">
+        { employeeId === '' ?
+          <Main
+            setEmployee={this.setEmployee}
+            />
+          :
+          <Profile
+            employeeId={employeeId}
+            backBtn={this.setEmployee}
+             />
+        }
+      </div>
+    )
+  }
+}
+
+const SubMenuList = props => (
+  <li
+    className="subMenuLi"
+    onClick={() => props.onClick(props.text)}
+    style={{display: 'inline', padding: '13px', borderBottom: props.text === props.subPage ? '4px solid orange': ''}}
+    >
+    {props.text}
+  </li>
+)
+
+class Profile extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      subPage: 'Profile',
+      employeeInfo: ''
+    }
+  }
+
+  componentDidMount(){
+    getEmployeeListForHr({employeeId: this.props.employeeId},res => {
+      if(res.status){
+        console.log(res);
+        this.setState(() => ({
+          employeeInfo: res.list[0]
+        }))
+      }
+    })
+  }
+
+  setSubPage = subPage => {
+    this.setState(() => ({
+      subPage
+    }))
+  }
+
+  render(){
+    let {backBtn} = this.props
+    let {subPage, employeeInfo} = this.state
+    let subPageList = ['Profile',  'เอกสาร', 'ใบเตือน']
+    return(
+      <div className="row">
+        <div className="col-10 mt-3">
+          <ul className="p-3" style={{borderBottom: '1px solid #e3e3e3'}}>
+            {
+              subPageList.map(page => <SubMenuList onClick={this.setSubPage} text={page} subPage={subPage} />)
+            }
+          </ul>
+        </div>
+        <div className="col-2 mt-3">
+          <button onClick={() => backBtn()}  className="btn btn-danger">กลับ</button>
+        </div>
+        <div className="col-3 text-center mt-3">
+          <img
+            src={employeeInfo.imageUrl ? IP + '/public/employee/' + employeeInfo.imageUrl : IP + '/public/employee/person.png'}
+            className={employeeInfo.active ? "personIconActive" : "personIconInactive"}
+            alt="Smiley face"
+            height="80"
+            width="80" />
+          <h5 className="mt-2">{employeeInfo.id}</h5>
+          <p style={{fontSize: '15px'}}>{employeeInfo.name}</p>
+        </div>
+        <div className="col-9">
+          {
+            subPage === 'Profile' && <SubProfile employeeInfo={employeeInfo} />
+          }
+        </div>
+      </div>
+    )
+  }
+}
+
+
+class SubProfile extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+    }
+  }
+
+  submitChange = (attribute, value) => {
+    // submitChange({employeeId: this.props.employeeInfo.id, attribute, value } ,res => {
+    //   if(res.status){
+    //
+    //   }else{
+    //     Swal.fire({
+    //       title: res.msg,
+    //       icon: 'error'
+    //     })
+    //   }
+    // })
+  }
+
+  render(){
+    let {employeeInfo} = this.props
+    return(
+      <div className="row">
+        <InputTextField submitChange={this.submitChange} title='เบอร์โทร' value={employeeInfo.phone} name="phone" />
+        <TextField title='เริ่มทำงาน' value={employeeInfo.startJob} />
+        <div className='mt-3'></div>
+        <TextField title='Department' value={employeeInfo.departmentName} />
+        <TextField title='ตำแหน่ง' value={employeeInfo.role} />
+      </div>
+    )
+  }
+}
+
+const TextField = props => (
+  <div className="col-6">
+    <label>{props.title} : </label>&nbsp;<span>{props.value}</span>
+  </div>
+)
+
+class InputTextField extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      inputValue: '',
+      showEdit: false
+    }
+  }
+
+  submitValueChange = () => {
+    let { inputValue } = this.state
+    let {title, submitChange} = this.props
+    if(inputValue === ''){
+      Swal.fire({
+        title:'กรุณาใส่'+title,
+        icon: 'error'
+      })
+      return
+    }
+    submitChange(inputValue)
+  }
+
+  textOnChange = (e) => {
+    let { value } = e.target
+    this.setState(() => ({
+      inputValue: value
+    }))
+  }
+
+  toggleShowEdit = () => {
+    this.setState(() => ({
+      showEdit: !this.state.showEdit,
+      inputValue: '',
+    }))
+  }
+
+  render(){
+    let {showEdit, inputValue} = this.state
+    let {title, value} = this.props
+    return(
+      <div className="col-6">
+        <label>{title} : </label>&nbsp;
+        {!showEdit ? <span>{value}</span> : <input placeholder={value} onChange={this.textOnChange} value={inputValue}  />}&nbsp;&nbsp;
+        {!showEdit ?
+          <span onClick={this.toggleShowEdit} className="subMenuLi"><FontAwesomeIcon icon={faPen} /></span>
+            :
+            <span>
+            <span onClick={this.submitValueChange} className="subMenuLi"><FontAwesomeIcon color='green' icon={faSave} /></span>
+            &nbsp;
+            <span onClick={this.toggleShowEdit} className="subMenuLi"><FontAwesomeIcon color='red' icon={faUndoAlt} /></span>
+          </span>
+        }
+
+      </div>
+    )
+  }
+}
+
+
+class Main extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
       employeeList: []
     }
   }
 
   componentDidMount(){
-    getEmployeeListForHr(res => {
-      console.log(res);
+    getEmployeeListForHr({}, res => {
+      if(res.status){
+        console.log(res.list[0]);
+        this.setState(() => ({
+          employeeList: res.list
+        }))
+      }
     })
   }
 
   render(){
+    let { employeeList } = this.state
+    let {setEmployee} = this.props
+    employeeList = employeeList.filter(x => x.active)
     return(
-      <div className="container">
+      <div className="row">
+        <div className='col-12'>
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th style={{width: '10%'}}></th>
+                <th style={{width: '40%'}}>พนักงาน</th>
+                <th style={{width: '20%'}}>เข้าทำงาน</th>
+                <th style={{width: '10%'}}>เบอร์โทร</th>
+                <th style={{width: '10%'}}>สัญชาติ</th>
+                <th style={{width: '10%'}}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                employeeList.map(emp => (
+                  <tr>
+                    <td className="align-middle" style={{width: '10%'}}>{emp.id}</td>
+                    <td className="align-middle" style={{width: '40%'}}>
+                      <div className="row">
+                        <div className="col-2">
+                          <img
+                            src={emp.imageUrl ? IP + '/public/employee/' + emp.imageUrl : IP + '/public/employee/person.png'}
+                            className={emp.active ? "personIconActive" : "personIconInactive"}
+                            alt="Smiley face"
+                            height="60"
+                            width="60" />
+                        </div>
+                        <div className="col-10">
+                          <div className="col-12">
+                            {emp.name}
+                          </div>
+                          <div className="col-12">
+                            {emp.departmentName} - {emp.role}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="align-middle" style={{width: '10%'}}>{emp.startJob}</td>
+                    <td className="align-middle" style={{width: '20%'}}>{emp.phone}</td>
+                    <td className="align-middle" style={{width: '10%'}}>{emp.nationality}</td>
+                    <td className="align-middle" style={{width: '10%'}}>
+                      <button onClick={() => setEmployee(emp.id)} className="btn btn-success">Profile</button>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
