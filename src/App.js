@@ -25,6 +25,7 @@ import {
 
 import Recipe from './page/recipe'
  import UserProfile from './page/user-profile'
+  import EmployeeListForHr from './page/employeeListForHr'
 
 import { IP, getJobList, createNewJob
  } from './tunnel'
@@ -39,6 +40,7 @@ function App() {
           <Route path="/" element={<TestFrame />} />
           <Route path="/user-profile/:id" element={<UserProfileHook />} />
           <Route path="/recipe" element={<Recipe />} />
+          <Route path="/hr" element={<EmployeeListForHr />} />
       </Routes>
     </BrowserRouter>
     </div>

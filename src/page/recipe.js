@@ -11,7 +11,8 @@ import {
   getRecipe,
   getItems,
   submitIngredientToRecipe,
-  deleteIngredientFromRecipe
+  deleteIngredientFromRecipe,
+  deleteRecipe
 } from './../tunnel'
 
 export default class Recipe extends React.Component {
@@ -60,6 +61,7 @@ class MainRecipe extends React.Component {
   componentDidMount(){
     getRecipes(res => {
       if(res.status){
+        console.log(res);
         this.setState(() => ({
           recipeList: res.recipes
         }))
@@ -107,6 +109,8 @@ class MainRecipe extends React.Component {
 
   render(){
     let options = this.state.menuList.map(menu => ({label: `[${menu.code}] - ${menu.name}`, value: menu.code}))
+    let totalCost = this.state.recipeList.reduce((total, rep) => total + rep.cost , 0)
+    let totalSale = this.state.recipeList.reduce((total, rep) => total + rep.price , 0)
     return (
       <div className="col-12">
         <div className="col-12 mt-3">
@@ -123,6 +127,24 @@ class MainRecipe extends React.Component {
           <table className="table table-bordered">
             <thead>
               <tr>
+                <th style={{textAlign: 'center', background: '#71D3F5'}}>Total Sale</th>
+                <th style={{textAlign: 'center', background: '#ABE332'}}>Total Cost</th>
+                <th style={{textAlign: 'center', background: '#9894BD'}}>Cost (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{textAlign: 'center'}}>{numeral(totalSale).format('0,0.00')}</td>
+                <td style={{textAlign: 'center'}}>{numeral(totalCost).format('0,0.00')}</td>
+                <td style={{textAlign: 'center'}}>{numeral(totalCost*100/totalSale).format('0.00')}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="col-12">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
                 <th style={{width: '40%'}}>รายการ</th>
                 <th style={{width: '15%', textAlign: 'right'}}>ต้นทุน</th>
                 <th style={{width: '15%', textAlign: 'right'}}>ราคาขาย</th>
@@ -135,9 +157,9 @@ class MainRecipe extends React.Component {
                 this.state.recipeList.map(x => (
                   <tr key={x.id}>
                     <td style={{width: '40%'}} >{x.name}</td>
-                    <td style={{width: '15%', textAlign: 'right'}} ></td>
-                    <td style={{width: '15%', textAlign: 'right'}} >{numeral(x.price).format('0,0')}.-</td>
-                    <td style={{width: '20%', textAlign: 'right'}} ></td>
+                    <td style={{width: '15%', textAlign: 'right'}} >{numeral(x.cost).format('0,0.00')}</td>
+                    <td style={{width: '15%', textAlign: 'right'}} >{numeral(x.price).format('0,0.00')}</td>
+                    <td style={{width: '20%', textAlign: 'right'}} >{numeral(x.cost*100/x.price).format('0.00')}%</td>
                     <td style={{width: '10%'}}><button onClick={() => this.props.openRecipe(x.id)} className="btn btn-dark">ดูข้อมูล</button></td>
                   </tr>
                 ))
@@ -244,6 +266,34 @@ class AddNewRecipe extends React.Component {
     this.loadRecipe(this.props.recipeId)
   }
 
+  deleteRecipe = () => {
+    let {recipeId, backBtn} = this.props
+    let { recipe } = this.state
+    Swal.fire({
+      title: 'ยืนยันลบสูตรายการนี้?',
+      text: `${recipe.code} - ${recipe.name}`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ปิด',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteRecipe({recipeId}, res => {
+          if(res.status){
+            backBtn()
+          }else{
+            Swal.fire({
+              icon: 'error',
+              title: res.msg
+            })
+          }
+        })
+      }
+})
+  }
+
   loadRecipe = recipeId => {
     getRecipe({recipeId}, res => {
       if(res.status){
@@ -325,11 +375,14 @@ class AddNewRecipe extends React.Component {
 
     return(
       <div className="row">
-        <div className="col-10 mt-3">
+        <div className="col-8 mt-3">
           { recipe !== '' && <h3>{recipe.code} - {recipe.name}</h3>}
         </div>
         <div className="col-2 mt-3">
-          <h3><button onClick={this.props.backBtn} className="btn btn-danger">กลับ</button></h3>
+          <button onClick={this.deleteRecipe} className="btn btn-danger">ลบ</button>
+        </div>
+        <div className="col-2 mt-3">
+          <button onClick={this.props.backBtn} className="btn btn-danger">กลับ</button>
         </div>
         <div className="col-12 mt-3">
           <table className="table table-bordered">
@@ -380,23 +433,23 @@ class AddNewRecipe extends React.Component {
           <table className="table table-bordered">
             <tbody>
               <tr>
-                <td>Total</td>
+                <td style={{background: '#ABE332', width: '80%'}}>Total</td>
                 <td className="text-right"><b>{numeral(total).format('0,0.00')}</b></td>
               </tr>
               <tr>
-                <td>Sesoning/Added Mixed 10%</td>
+                <td style={{background: '#ABE332', width: '80%'}}>Sesoning/Added Mixed 10%</td>
                 <td className="text-right"><b>{numeral(seasoningCost).format('0,0.00')}</b></td>
               </tr>
               <tr>
-                <td>Total Cost</td>
+                <td style={{background: '#ABE332', width: '80%'}}>Total Cost</td>
                 <td className="text-right"><b>{numeral(totalCost).format('0,0.00')} </b></td>
               </tr>
               <tr>
-                <td>Selling Price</td>
+                <td style={{background: '#ABE332', width: '80%'}}>Selling Price</td>
                 <td className="text-right"><b>{recipe !== '' && numeral(recipe.price).format('0,0')}</b></td>
               </tr>
               <tr>
-                <td>Cost per portion</td>
+                <td style={{background: '#ABE332', width: '80%'}}>Cost per portion</td>
                 <td className="text-right"><b>{numeral(totalCost*100/recipe.price).format('0,0.00')}%</b></td>
               </tr>
             </tbody>

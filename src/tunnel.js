@@ -35,8 +35,19 @@ export const getItems = (callback) => {
 /////
 
 
+export const getEmployeeListForHr = (callback) => {
+  makeGetRequest('hr/getEmployeeListForHr', res => callback(res))
+}
+///////
+
+
 export const getNoneRecipeMenuItems = (callback) => {
   makeGetRequest('restaurant/getNoneRecipeMenuItems', res => callback(res))
+}
+
+
+export const deleteRecipe = (data, callback) => {
+  makePostRequest('restaurant/deleteRecipe', data, res => callback(res))
 }
 
 
