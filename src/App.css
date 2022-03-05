@@ -181,6 +181,9 @@ table thead, table tbody tr {
   justify-content: space-around;
   align-items: center;
 }
+.disable {
+  background-color: #e3e3e3;
+}
 
 #month-title {
   background-color: #f2c66f;

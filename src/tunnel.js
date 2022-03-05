@@ -35,8 +35,28 @@ export const getItems = (callback) => {
 /////
 
 
+
+export const getEmployeeAccountById = (data, callback) => {
+  makePostRequest('hr/getEmployeeAccountById', data, res => callback(res))
+}
+
+export const getMonthlyTimeScanByEmployeeId = (data, callback) => {
+  makePostRequest('hr/getMonthlyTimeScanByEmployeeId', data, res => callback(res))
+}
+
 export const getEmployeeListForHr = (data, callback) => {
   makePostRequest('hr/getEmployeeListForHr', data, res => callback(res))
+}
+
+
+export const showPrintReceipt = (data, callback) => {
+  makePostRequest('hr/showPrintReceipt', data, res => callback(res))
+}
+
+
+
+export const updateEmployeeAttribute = (data, callback) => {
+  makePostRequest('hr/updateEmployeeAttribute', data, res => callback(res))
 }
 ///////
 

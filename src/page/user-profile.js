@@ -3,6 +3,7 @@ import moment from 'moment'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Swal from 'sweetalert2'
 import  { Navigate } from 'react-router-dom'
+import numeral from 'numeral'
 import {
   faChevronCircleRight, faChevronCircleLeft, faArrowUp, faArrowDown,faUsersCog,
   faBuilding, faSave, faCloudSun, faBed,faExclamationTriangle, faCoffee, faUndoAlt,
@@ -10,7 +11,10 @@ import {
  } from '@fortawesome/free-solid-svg-icons'
 import { IP,
   getEmployeeProfileByLineId,
-  updatePhoneByUserId
+  updatePhoneByUserId,
+  getMonthlyTimeScanByEmployeeId,
+  getEmployeeAccountById,
+  showPrintReceipt
  } from './../tunnel'
 
 
@@ -132,11 +136,11 @@ export default class UserProfile extends React.Component {
 
         }
         {
-          this.state.page === 'timetable' && <TimetableView changePage={this.changePage} />
+          this.state.page === 'timetable' && <TimetableView employeeId={this.state.id} changePage={this.changePage} />
 
         }
         {
-          this.state.page === 'SalaryView' && <SalaryView changePage={this.changePage} />
+          this.state.page === 'SalaryView' && <SalaryView changePage={this.changePage} employeeId={this.state.id} />
         }
         {
           this.state.page === 'jobReport' && <JobReportView changePage={this.changePage} />
@@ -495,39 +499,111 @@ class SalaryView extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-
+      currentMonth: new Date(),
+      accountList: [],
+      receipt: ''
     }
   }
 
+  componentDidMount(){
+    getEmployeeAccountById({employeeId: this.props.employeeId, month: this.state.currentMonth}, res => {
+      console.log(res);
+      if(res.status){
+        this.setState(() => ({
+          accountList: res.accountList,
+          receipt: res.receipt
+        }))
+      }
+    })
+  }
+
+  monthOnChange = (input) => {
+    let {currentMonth} = this.state
+    let { employeeId } = this.props
+    if(input){
+      currentMonth.setMonth(currentMonth.getMonth() + 1)
+    }else{
+      currentMonth.setMonth(currentMonth.getMonth() - 1)
+    }
+    getEmployeeAccountById({employeeId, month: currentMonth}, res => {
+      console.log(res);
+      if(res.status){
+        this.setState(() => ({
+          accountList: res.accountList,
+          receipt: res.receipt,
+          currentMonth
+        }))
+      }
+    })
+  }
+
+  showPrintReceipt = () => {
+    showPrintReceipt({
+      month : this.state.currentMonth,
+      employeeId: this.props.employeeId
+    }, res => {
+      if(res.status){
+        window.open(res.uri, "_blank");
+      }
+    })
+  }
+
   render(){
+    let {receipt, accountList} = this.state
+    //
+    let incomeList = accountList.filter(x => x.type === 'เงินได้')
+    let outcomeList = accountList.filter(x => x.type === 'เงินหัก')
+    let totalIncome = incomeList.reduce((total, x) => total += x.amount , 0)
+    let totalOutcome = outcomeList.reduce((total, x) => total += x.amount , 0)
+    console.log(totalOutcome);
+
+    if(receipt.earning !== undefined) {
+      totalIncome =+ receipt.earning
+    }
+    if(receipt.socialSecurity !== undefined) {
+      totalOutcome = totalOutcome + receipt.socialSecurity
+    }
+    let remainTotal = totalIncome - totalOutcome
+    // receipt.socialSecurity !== undefined && totalOutcome =+ receipt.socialSecurity
+    // let incomeList = []
+    // let outcomeList = []
+    console.log(totalOutcome);
+
+
     return (
       <div className="row">
         <div className="d-flex flex-row justify-content-center mt-4">
-          <FontAwesomeIcon size='2x' color="#f2c66f" icon={faChevronCircleLeft} />
+          <FontAwesomeIcon size='2x' onClick={() => this.monthOnChange(false)} color="#f2c66f" icon={faChevronCircleLeft} />
           <span id="month-title">
-            November
+            {moment(this.state.currentMonth).format('MMMM')}
           </span>
-          <FontAwesomeIcon size='2x' color="#f2c66f" icon={faChevronCircleRight} />
+          <FontAwesomeIcon size='2x' onClick={() => this.monthOnChange(true)} color="#f2c66f" icon={faChevronCircleRight} />
         </div>
         <div className="d-flex flex-column align-items-center mt-4">
-          <h1>23,000</h1>
+          { this.state.receipt !== '' ? <h1>{numeral(remainTotal).format('0,0')}.-</h1>: 'N/A'}
           <p>REMAINING</p>
         </div>
         <div className="d-flex justify-content-center mt-4">
           <table style={{width: '90%'}} className="table table-sm text-light ">
             <thead>
               <th style={{width: '60%'}}><FontAwesomeIcon size='2x' color="green" icon={faArrowUp} /> เงินได้</th>
-              <th style={{textAlign: 'right'}}>23,848.-</th>
+              <th style={{textAlign: 'right'}}>{numeral(totalIncome).format('0,0')}.-</th>
             </thead>
             <tbody >
-              <tr>
-                <td>เงินเดือน:</td>
-                <td style={{textAlign: 'right'}}>23,848.-</td>
+              {
+                receipt.earning !== undefined && <tr>
+                <td>เงินเดือน</td>
+                <td style={{textAlign: 'right'}}>{numeral(receipt.earning).format('0,0')}.-</td>
               </tr>
-              <tr>
-                <td>คืนค่าน้ำาไฟ (30%):</td>
-                <td style={{textAlign: 'right'}}>1,848.-</td>
-              </tr>
+              }
+              {
+                incomeList.map(x => (
+                  <tr>
+                    <td>{x.remark}</td>
+                    <td style={{textAlign: 'right'}}>{numeral(x.amount).format('0,0')}.-</td>
+                  </tr>
+                ))
+              }
             </tbody>
           </table>
         </div>
@@ -535,26 +611,28 @@ class SalaryView extends React.Component {
           <table style={{width: '90%'}} className="table table-sm text-light ">
             <thead>
               <th style={{width: '60%'}} ><FontAwesomeIcon size='2x' color="red" icon={faArrowDown} /> เงินหัก</th>
-              <th style={{textAlign: 'right'}}>23,848.-</th>
+              <th style={{textAlign: 'right'}}>{numeral(totalOutcome).format('0,0')}.-</th>
             </thead>
             <tbody >
-              <tr>
-                <td>ประกันสังคม:</td>
-                <td style={{textAlign: 'right'}}>23,848.-</td>
+              {
+                receipt.socialSecurity !== undefined && <tr>
+                <td>ประกันสังคม</td>
+                <td style={{textAlign: 'right'}}>{numeral(receipt.socialSecurity).format('0,0')}.-</td>
               </tr>
-              <tr>
-                <td>ค่าน้ำ:</td>
-                <td style={{textAlign: 'right'}}>1,848.-</td>
-              </tr>
-              <tr>
-                <td>ค่าไฟ:</td>
-                <td style={{textAlign: 'right'}}>1,848.-</td>
-              </tr>
+              }
+              {
+                outcomeList.map(x => (
+                  <tr>
+                    <td>{x.remark}</td>
+                    <td style={{textAlign: 'right'}}>{numeral(x.amount).format('0,0')}.-</td>
+                  </tr>
+                ))
+              }
             </tbody>
           </table>
         </div>
         <div className="col-12 mt-4 text-center">
-          <div style={{width: '90%'}} className="profile-block">ดาวน์โหลดสลิป</div>
+          <button onClick={this.showPrintReceipt} style={{width: '90%'}} className={`${this.state.receipt === '' ? 'profile-block disable' : 'profile-block'}`} disabled={this.state.receipt === ''}>ดาวน์โหลดสลิป</button>
         </div>
         <div style={{height:'150px', width: '50px'}}>
 
@@ -575,56 +653,94 @@ class TimetableView extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-
+      timetableList: [],
+      currentMonth: new Date()
     }
   }
 
+  componentDidMount(){
+    let { employeeId } = this.props
+    let { currentMonth } = this.state
+    getMonthlyTimeScanByEmployeeId({employeeId, inputMonth: currentMonth}, res => {
+      if(res.status){
+        console.log(res.payload);
+        this.setState(() => ({
+          timetableList: res.payload
+        }))
+      }
+    })
+  }
+
+  monthOnChange = (input) => {
+    let {currentMonth} = this.state
+    let { employeeId } = this.props
+    if(input){
+      currentMonth.setMonth(currentMonth.getMonth() + 1)
+    }else{
+      currentMonth.setMonth(currentMonth.getMonth() - 1)
+    }
+    getMonthlyTimeScanByEmployeeId({employeeId, inputMonth: currentMonth}, res => {
+      if(res.status){
+        console.log(res.payload);
+        this.setState(() => ({
+          timetableList: res.payload,
+          currentMonth
+        }))
+      }
+    })
+  }
+
+
   render(){
 
-    let payload = []
-    for(let count = 0; count < 30; count++){
-      const result = {
-        date: moment().subtract(count, 'days').format('DD/MM/YY'),
-        start: '10:00 AM',
-        break: '-',
-        continue: '-',
-        end: '8:00 PM'
-      }
-      payload = [ ...payload, result ]
-    }
+    let {timetableList, currentMonth} = this.state
 
     return (
       <div className="row">
         <div className="d-flex flex-row justify-content-center mt-4">
-          <FontAwesomeIcon size='2x' color="#f2c66f" icon={faChevronCircleLeft} />
+          <FontAwesomeIcon size='2x' onClick={() => this.monthOnChange(false)} color="#f2c66f" icon={faChevronCircleLeft} />
           <span id="month-title">
-            November
+            {moment(currentMonth).format('MMMM')}
           </span>
-          <FontAwesomeIcon size='2x' color="#f2c66f" icon={faChevronCircleRight} />
+          <FontAwesomeIcon size='2x' onClick={() => this.monthOnChange(true)} color="#f2c66f" icon={faChevronCircleRight} />
         </div>
         <p style={{fontSize: '13px', color: 'white'}} className="mt-3">* หากเวลาไม่ถูกต้อง สามารถไปที่ "แจ้งปัญหา"</p>
         <div className="d-flex flex-row justify-content-center">
           <table className="table table-sm text-light timetable">
             <thead>
-              <tr style={{color: '#f2c66f'}}>
+              <tr style={{color: '#f2c66f', width: '40%'}}>
                 <th>วันที่</th>
-                <th align="center">เข้า</th>
-                <th align="center">พัก</th>
-                <th align="center">กลับเข้า</th>
-                <th align="center">ออก</th>
+                <th style={{ width: '15%'}} align="center">เข้า</th>
+                <th style={{ width: '15%'}} align="center">พัก</th>
+                <th style={{ width: '15%'}} align="center">กลับเข้า</th>
+                <th style={{ width: '15%'}} align="center">ออก</th>
               </tr>
             </thead>
             <tbody>
               {
-                payload.map(x => (
-                  <tr>
-                    <td style={{fontSize: '13px', fontWeight: 'bold'}}>{x.date}</td>
-                    <td style={{fontSize: '13px'}} align="center">{x.start}</td>
-                    <td style={{fontSize: '13px'}} align="center">{x.break}</td>
-                    <td style={{fontSize: '13px'}} align="center">{x.continue}</td>
-                    <td style={{fontSize: '13px'}} align="center">{x.end}</td>
-                  </tr>
-                ))
+                this.state.timetableList.map(x => {
+                  return (
+                    <tr style={{borderBottom: '1px solid white'}}>
+                      <td className="align-middle" style={{fontSize: '13px', fontWeight: '', width: '40%'}}>{x.date}<br />
+                      <span style={{color: '#919191'}}>
+                        {
+                          x.timetable !== undefined ?
+                          x.timetable.breakTime !== null ?
+                          `${moment(x.timetable.startTime).format('hh:mm a')} - ${moment(x.timetable.breakTime).format('hh:mm a')}, ${moment(x.timetable.continueTime).format('hh:mm a')} - ${moment(x.timetable.endTime).format('hh:mm a')}`
+                          :
+                          `${moment(x.timetable.startTime).format('hh:mm a')} - ${moment(x.timetable.endTime).format('hh:mm a')}`
+                          :
+                          ''
+                        }</span>
+                      </td>
+                      <td className="align-middle" style={{fontSize: '13px', width: '15%'}} align="center">{x.start !== undefined ? x.start.time : '-' }</td>
+                      <td className="align-middle" style={{fontSize: '13px', width: '15%'}} align="center">{x.break !== undefined ? x.break.time : '-' }</td>
+                      <td className="align-middle" style={{fontSize: '13px', width: '15%'}} align="center">{x.continue !== undefined ? x.continue.time : '-' }</td>
+                      <td className="align-middle" style={{fontSize: '13px', width: '15%'}} align="center">{x.end !== undefined ? x.end.time : '-' }</td>
+                    </tr>
+                  )
+                }
+                )
               }
             </tbody>
           </table>

@@ -11,7 +11,8 @@ import {
  } from '@fortawesome/free-solid-svg-icons'
 
 import { IP,
-  getEmployeeListForHr
+  getEmployeeListForHr,
+  updateEmployeeAttribute
  } from './../tunnel'
 
 export default class EmployeeListForHr extends React.Component {
@@ -124,28 +125,33 @@ class SubProfile extends React.Component {
   constructor(props){
     super(props)
     this.state = {
+
     }
   }
 
-  submitChange = (attribute, value) => {
-    // submitChange({employeeId: this.props.employeeInfo.id, attribute, value } ,res => {
-    //   if(res.status){
-    //
-    //   }else{
-    //     Swal.fire({
-    //       title: res.msg,
-    //       icon: 'error'
-    //     })
-    //   }
-    // })
+  submitChange = (attribute, value, callback) => {
+    console.log(attribute, value);
+    updateEmployeeAttribute({employeeId: this.props.employeeInfo.id, attribute, value } ,res => {
+      if(res.status){
+        callback(res)
+      }else{
+        Swal.fire({
+          title: res.msg,
+          icon: 'error'
+        })
+      }
+    })
   }
 
   render(){
     let {employeeInfo} = this.props
-    return(
-      <div className="row">
+    return( employeeInfo !== undefined && <div className="row">
         <InputTextField submitChange={this.submitChange} title='เบอร์โทร' value={employeeInfo.phone} name="phone" />
         <TextField title='เริ่มทำงาน' value={employeeInfo.startJob} />
+        <div className='mt-3'></div>
+        <div className="col-6">
+        </div>
+        <InputTextField submitChange={this.submitChange} title='วันเกิด' value={employeeInfo.dob} name="dob" />
         <div className='mt-3'></div>
         <TextField title='Department' value={employeeInfo.departmentName} />
         <TextField title='ตำแหน่ง' value={employeeInfo.role} />
@@ -163,15 +169,17 @@ const TextField = props => (
 class InputTextField extends React.Component {
   constructor(props){
     super(props)
+    console.log(this.props);
     this.state = {
       inputValue: '',
-      showEdit: false
+      showEdit: false,
+      savedValue: ''
     }
   }
 
   submitValueChange = () => {
     let { inputValue } = this.state
-    let {title, submitChange} = this.props
+    let {title, submitChange, name} = this.props
     if(inputValue === ''){
       Swal.fire({
         title:'กรุณาใส่'+title,
@@ -179,7 +187,14 @@ class InputTextField extends React.Component {
       })
       return
     }
-    submitChange(inputValue)
+    submitChange(name, inputValue, res => {
+      if(res.status){
+        this.setState(() => ({
+          showEdit: false,
+          savedValue: inputValue
+        }))
+      }
+    })
   }
 
   textOnChange = (e) => {
@@ -197,12 +212,13 @@ class InputTextField extends React.Component {
   }
 
   render(){
-    let {showEdit, inputValue} = this.state
+    let {showEdit, inputValue, savedValue} = this.state
     let {title, value} = this.props
+    let displayValue = savedValue !== '' ? savedValue : value
     return(
       <div className="col-6">
         <label>{title} : </label>&nbsp;
-        {!showEdit ? <span>{value}</span> : <input placeholder={value} onChange={this.textOnChange} value={inputValue}  />}&nbsp;&nbsp;
+        {!showEdit ? <span>{displayValue}</span> : <input placeholder={displayValue} onChange={this.textOnChange} value={inputValue}  />}&nbsp;&nbsp;
         {!showEdit ?
           <span onClick={this.toggleShowEdit} className="subMenuLi"><FontAwesomeIcon icon={faPen} /></span>
             :
