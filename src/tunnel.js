@@ -34,7 +34,22 @@ export const getItems = (callback) => {
 
 /////
 
+export const getBuildingsAndProperties = (callback) => {
+  makeGetRequest('engineer/getBuildingsAndProperties', res => callback(res))
+}
 
+export const getJobs = (callback) => {
+  makeGetRequest('engineer/getJobs', res => callback(res))
+}
+
+export const submitNewJob = (data, callback) => {
+  makePostRequest('engineer/submitNewJob', data, res => callback(res))
+}
+
+
+export const getJobsByCreateBy = (data, callback) => {
+  makePostRequest('engineer/getJobsByCreateBy', data, res => callback(res))
+}
 
 export const getEmployeeAccountById = (data, callback) => {
   makePostRequest('hr/getEmployeeAccountById', data, res => callback(res))

@@ -81,7 +81,7 @@
 
 #name {
   padding-top: 20px;
-  font-weight: bold;
+  font-weight:bold;
   line-height: 0.2;
 }
 
@@ -115,6 +115,17 @@
   width: 109px;
   height: 70px;
   color: #f2c66f;
+  border-radius: 20px;
+  align-items:center;
+  border: solid 2px #f2c66f;
+  text-align: center;
+}
+
+.room-item-check {
+  color: white;
+  background: #AB802A;
+  width: 109px;
+  height: 70px;
   border-radius: 20px;
   align-items:center;
   border: solid 2px #f2c66f;
@@ -324,6 +335,26 @@ display: block;
 
 .App-link {
   color: #61dafb;
+}
+
+
+.sub-menu-item {
+  color: white;
+  padding: 20px 10px;
+  width: 70px;
+  border-bottom: 2px solid white;
+  display: inline-block;
+  text-align: center;
+}
+
+.sub-menu-item-check {
+  color: black;
+  background: white;
+  width: 70px;
+  padding: 20px 10px;
+  border-bottom: 2px solid white;
+  display: inline-block;
+  text-align: center;
 }
 
 @keyframes App-logo-spin {
