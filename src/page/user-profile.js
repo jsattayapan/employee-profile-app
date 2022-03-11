@@ -534,7 +534,13 @@ class SubJobList extends React.Component {
             </div>
             {
               this.state.showList &&
-              x.jobList.map(x => <SubJobListDetail job={x} />)
+              <div className="col-12">
+                <table>
+                  {
+                    x.jobList.map(x => <SubJobListDetail job={x} />)
+                  }
+                </table>
+              </div>
             }
           </div>
         </td>
@@ -1072,9 +1078,9 @@ class TimetableView extends React.Component {
                         {
                           x.timetable !== undefined ?
                           x.timetable.breakTime !== null ?
-                          `${moment(x.timetable.startTime).format('hh:mm a')} - ${moment(x.timetable.breakTime).format('hh:mm a')}, ${moment(x.timetable.continueTime).format('hh:mm a')} - ${moment(x.timetable.endTime).format('hh:mm a')}`
+                          `${moment(x.timetable.startTime).format('HH:mm')} - ${moment(x.timetable.breakTime).format('HH:mm')}, ${moment(x.timetable.continueTime).format('HH:mm')} - ${moment(x.timetable.endTime).format('HH:mm')}`
                           :
-                          `${moment(x.timetable.startTime).format('hh:mm a')} - ${moment(x.timetable.endTime).format('hh:mm a')}`
+                          `${moment(x.timetable.startTime).format('HH:mm')} - ${moment(x.timetable.endTime).format('HH:mm')}`
                           :
                           ''
                         }</span>
@@ -1188,7 +1194,7 @@ class ProfileView extends React.Component {
               </tr>
               <tr>
                 <td className="pro-title">DOB:</td>
-                <td className="pro-value">Nov 22</td>
+                <td className="pro-value">{this.props.dob}</td>
               </tr>
               <tr>
                 <td className="pro-title">Employee Since:</td>
