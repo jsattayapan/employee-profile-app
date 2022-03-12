@@ -26,7 +26,7 @@ import {
 } from "react-router-dom";
 
 import Recipe from './page/recipe'
-import UserProfile from './page/user-profile'
+import UserProfile from './page/user-profile/index'
 import EmployeeListForHr from './page/employeeListForHr'
 import PageSetting from './page/pageSetting'
 
