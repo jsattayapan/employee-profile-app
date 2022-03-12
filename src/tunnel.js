@@ -64,6 +64,15 @@ export const getEmployeeListForHr = (data, callback) => {
 }
 
 
+export const getPageSettingPermission = (callback) => {
+  makeGetRequest('hr/getPageSettingPermission', res => callback(res))
+}
+
+
+export const updatePermission = (data, callback) => {
+  makePostRequest('hr/updatePermission', data, res => callback(res))
+}
+
 export const showPrintReceipt = (data, callback) => {
   makePostRequest('hr/showPrintReceipt', data, res => callback(res))
 }

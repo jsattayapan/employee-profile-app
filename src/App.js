@@ -26,8 +26,9 @@ import {
 } from "react-router-dom";
 
 import Recipe from './page/recipe'
- import UserProfile from './page/user-profile'
-  import EmployeeListForHr from './page/employeeListForHr'
+import UserProfile from './page/user-profile'
+import EmployeeListForHr from './page/employeeListForHr'
+import PageSetting from './page/pageSetting'
 
 import { IP, getJobList, createNewJob
  } from './tunnel'
@@ -43,6 +44,8 @@ function App() {
           <Route path="/user-profile/:id" element={<UserProfileHook />} />
           <Route path="/recipe" element={<Recipe />} />
           <Route path="/hr" element={<EmployeeListForHr />} />
+          <Route path="/page-setting" element={<PageSetting />} />
+
       </Routes>
     </BrowserRouter>
     </div>

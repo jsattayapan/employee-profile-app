@@ -40,7 +40,8 @@ export default class UserProfile extends React.Component {
       role: '',
       phone: '',
       startJob: '',
-      workingTimeText: ''
+      workingTimeText: '',
+      pagePermission: []
     }
   }
 
@@ -68,7 +69,18 @@ export default class UserProfile extends React.Component {
     }))
   }
 
+  verify = pageId => {
+    let found = this.state.pagePermission.filter(x => x.pageId === pageId)
+    if(found.length === 0){
+      return false
+    }else{
+      return true
+    }
+  }
+
   render(){
+
+
     return (
       <div className="container-fluid user-profile-container pt-4">
         {
@@ -110,10 +122,11 @@ export default class UserProfile extends React.Component {
               <FontAwesomeIcon size="2x" icon={faFileInvoiceDollar} />
               <p class="menu-item-sub">สลิปเงินเดือน</p>
             </div>
-            <div onClick={() => this.changePage('jobReport')} className="menu-item">
+            { this.verify('uywnwdl0ncxy10') ? <div onClick={() => this.changePage('jobReport')} className="menu-item">
               <FontAwesomeIcon size="2x" icon={faTools} />
               <p class="menu-item-sub">แจ้งซ่อม</p>
-            </div>
+            </div> : <div className="menu-item">
+            </div>}
           </div>
           <div className="main-menu mt-4">
             <div className="menu-item">
