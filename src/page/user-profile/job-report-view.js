@@ -25,62 +25,25 @@ export default class JobReportView extends React.Component {
       currentMonth: new Date,
       buildingList: [],
       roomList: [],
-      jobList: []
+      jobList: [],
+      allJoblList: []
     }
   }
 
   componentDidMount(){
-
     getJobs(res => {
       if(res.status){
         console.log(res);
-        let result = []
-        res.jobList.forEach((job) => {
-          if(job.type === 'งานภายในห้องพัก'){
-            let found = result.filter(x => (x.propertyId === job.propertyId && x.type === 'งานภายในห้องพัก' ))
-            if(found.length !== 0){
-              let oldJob = found[0]
-              let oldList = oldJob.jobList
-              let payload = {
-                ...oldJob, jobList: [job, oldList]
-              }
-              let noneLeft = result.filter(x => !(x.propertyId === job.propertyId && x.type === 'งานภายในห้องพัก' ))
-              result = [ ...noneLeft, payload]
-            } else {
-              result = [ ...result, {
-                propertyId: job.propertyId,
-                buildingName: job.building.name,
-                propertyName: job.property.name,
-                type: job.type,
-                jobList: [job]
-              }]
-            }
-          } else if(job.type === 'งานภายในอาคาร'){
-            let found = result.filter(x => (x.buildingId === job.buildingId && x.type === 'งานภายในอาคาร' ))
-            if(found.length !== 0){
-              let oldJob = found[0]
-              let oldList = oldJob.jobList
-              let payload = {
-                ...oldJob, jobList: [job, oldList]
-              }
-              let noneLeft = result.filter(x => !(x.buildingId === job.buildingId && x.type === 'งานภายในอาคาร' ))
-              result = [ ...noneLeft, payload]
-            } else {
-              result = [ ...result, {
-                buildingId: job.buildingId,
-                buildingName: job.building.name,
-                type: job.type,
-                jobList: [job]
-              }]
-            }
-          } else {
-            result = [ ...result, job ]
-          }
-
-        });
+        let jobList = res.jobList
+        if(this.props.verify('uywovfl0oxjfgc')){
+          jobList = jobList.filter(x => x.createBy.id === this.props.employeeId)
+        }
+        let result = this.reformatJobList(jobList)
         console.log(result);
+        result = result.filter(x => (moment(x.timestamp).isSame(moment(this.state.currentMonth, 'month'))))
         this.setState(() => ({
-          jobList: result
+          jobList: result,
+          allJoblList: jobList
         }))
       }
     })
@@ -95,16 +58,71 @@ export default class JobReportView extends React.Component {
     })
   }
 
+  reformatJobList = list => {
+    let result = []
+    list.forEach((job) => {
+      if(job.type === 'งานภายในห้องพัก'){
+        let found = result.filter(x => (x.propertyId === job.propertyId && x.type === 'งานภายในห้องพัก' ))
+        if(found.length !== 0){
+          let oldJob = found[0]
+          let oldList = oldJob.jobList
+          let payload = {
+            ...oldJob, jobList: [job, oldList]
+          }
+          let noneLeft = result.filter(x => !(x.propertyId === job.propertyId && x.type === 'งานภายในห้องพัก' ))
+          result = [ ...noneLeft, payload]
+        } else {
+          result = [ ...result, {
+            propertyId: job.propertyId,
+            buildingName: job.building.name,
+            propertyName: job.property.name,
+            type: job.type,
+            jobList: [job]
+          }]
+        }
+      } else if(job.type === 'งานภายในอาคาร'){
+        let found = result.filter(x => (x.buildingId === job.buildingId && x.type === 'งานภายในอาคาร' ))
+        if(found.length !== 0){
+          let oldJob = found[0]
+          let oldList = oldJob.jobList
+          let payload = {
+            ...oldJob, jobList: [job, oldList]
+          }
+          let noneLeft = result.filter(x => !(x.buildingId === job.buildingId && x.type === 'งานภายในอาคาร' ))
+          result = [ ...noneLeft, payload]
+        } else {
+          result = [ ...result, {
+            buildingId: job.buildingId,
+            buildingName: job.building.name,
+            type: job.type,
+            jobList: [job]
+          }]
+        }
+      } else {
+        result = [ ...result, job ]
+      }
+
+    });
+
+    return result
+  }
+
   monthOnChange = (input) => {
-    let {currentMonth} = this.state
+    let {currentMonth, allJoblList} = this.state
     let { employeeId } = this.props
     if(input){
       currentMonth.setMonth(currentMonth.getMonth() + 1)
     }else{
       currentMonth.setMonth(currentMonth.getMonth() - 1)
     }
+
+    let result = allJoblList.filter(x => {
+      return moment(x.timestamp).isSame(moment(currentMonth), 'month')
+    })
+    result = this.reformatJobList(result)
     this.setState(() => ({
-      currentMonth
+      currentMonth,
+      jobList: result
     }))
   }
 
@@ -142,31 +160,7 @@ export default class JobReportView extends React.Component {
                   {
                     this.state.jobList.map(x => {
                       let htmlCode = ''
-                      if(x.type === 'งานภายในอาคาร'){
-                       htmlCode =
-                        <tr className="my-3">
-                          <td style={{background: '#424241'}}>
-                            <div className='row'>
-                              <div className="col-6">
-                                <span style={{fontWeight: '300', color: '#999999'}}>
-                                  <FontAwesomeIcon
-                                    size="1x"
-                                    icon={ faBuilding } /> : {x.buildingName}
-                                </span>
-                              </div>
-                              <div className="col-4">
-                              </div>
-                              <div className="col-2 text-right">
-                                <span style={{fontWeight: '300', color: '#999999'}}>
-                                  <FontAwesomeIcon
-                                    size="1x"
-                                    icon={ faChevronDown } />
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      } else if (x.type === 'งานภายในห้องพัก') {
+                      if(x.type === 'งานภายในอาคาร' || x.type === 'งานภายในห้องพัก'){
                         htmlCode =
                          <SubJobList job={x} />
                       } else {
@@ -237,13 +231,21 @@ class SubJobListDetail extends React.Component{
   }
   render(){
     const x = this.props.job
+    let color = ''
+    if(x.status === 'เสร็จ'){
+      color = '#95ff6b'
+    } else if (x.status === 'กำลังทำ'){
+      color = 'orange'
+    } else{
+      color = 'red'
+    }
     return(
       <tr className="my-3">
         <td style={{background: '#424241'}}>
           <div className="row">
             <div className="col-6">
-              <p>[{x.status}] {x.detail}</p>
-              <span style={{fontWeight: '300', color: '#999999'}}><FontAwesomeIcon icon={faLocationArrow} /> {x.location}</span>
+              <p><span style={{color}}>[{x.status}]</span> {x.detail}</p>
+              {!(x.type === 'งานภายในอาคาร' || x.type === 'งานภายในห้องพัก') && <span style={{fontWeight: '300', color: '#999999'}}><FontAwesomeIcon icon={faLocationArrow} /> {x.location}</span>}
                 {
                   x.workerList.length ?
                   <div className="row mt-2">
@@ -308,6 +310,8 @@ class SubJobList extends React.Component {
 
   render(){
     const x = this.props.job
+    let totalJob = x.jobList.filter(x => x.status !== 'ยกเลิก')
+    let completeJob = x.jobList.filter(x => x.status === 'เสร็จ')
     return(
       <tr className="my-3">
         <td style={{background: '#424241'}}>
@@ -316,15 +320,15 @@ class SubJobList extends React.Component {
               <span style={{fontWeight: '300', color: '#999999'}}>
                 <FontAwesomeIcon
                   size="1x"
-                  icon={ faBuilding } />: {x.buildingName}
+                  icon={ faBuilding } />: {x.buildingName} ({completeJob.length}/{totalJob.length})
               </span>
             </div>
             <div className="col-4">
-              <span style={{fontWeight: '300', color: '#999999'}}>
+              {x.propertyName && <span style={{fontWeight: '300', color: '#999999'}}>
                 <FontAwesomeIcon
                   size="1x"
                   icon={ faBed } />: {x.propertyName}
-              </span>
+              </span>}
             </div>
             <div className="col-2 text-right">
               <span onClick={this.showListOnClick} style={{fontWeight: '300', color: '#999999'}}>
