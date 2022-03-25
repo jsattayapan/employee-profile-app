@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 
-export let IP = 'https://tunit3-samed.ap.ngrok.io';
+export const IP = 'https://tunit3-samed.ap.ngrok.io';
+export const REPORT_JOB_PERMISSION = 'uywnwdl0ncxy10';
+export const JOB_OWN_PERMISSION = 'uywovfl0oxjfgc';
+
 
 function makePostRequest(route, data, callback){
   axios.post(`${IP}/${route}`, data).then(res => {

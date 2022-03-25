@@ -17,7 +17,7 @@ import {
   faUser, faCalendarAlt, faHome, faTools, faFileInvoiceDollar,faBullhorn, faPencilAlt, faLocationArrow,faChevronDown
  } from '@fortawesome/free-solid-svg-icons'
 
-import { IP,
+import { IP, REPORT_JOB_PERMISSION,
   getEmployeeProfileByLineId,
 } from './../../tunnel'
 
@@ -115,7 +115,7 @@ export default class UserProfile extends React.Component {
               <FontAwesomeIcon size="2x" icon={faFileInvoiceDollar} />
               <p class="menu-item-sub">สลิปเงินเดือน</p>
             </div>
-            { this.verify('uywnwdl0ncxy10') ? <div onClick={() => this.changePage('jobReport')} className="menu-item">
+            { this.verify(REPORT_JOB_PERMISSION) ? <div onClick={() => this.changePage('jobReport')} className="menu-item">
               <FontAwesomeIcon size="2x" icon={faTools} />
               <p class="menu-item-sub">แจ้งซ่อม</p>
             </div> : <div className="menu-item">

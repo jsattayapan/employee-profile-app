@@ -12,6 +12,7 @@ import Swal from 'sweetalert2'
 import ImageResize from 'image-resize';
 
 import { IP,
+  JOB_OWN_PERMISSION,
   getJobs,
   getBuildingsAndProperties,
   getJobsByCreateBy,
@@ -35,7 +36,7 @@ export default class JobReportView extends React.Component {
       if(res.status){
         console.log(res);
         let jobList = res.jobList
-        if(this.props.verify('uywovfl0oxjfgc')){
+        if(this.props.verify(JOB_OWN_PERMISSION)){
           jobList = jobList.filter(x => x.createBy.id === this.props.employeeId)
         }
         let result = this.reformatJobList(jobList)
