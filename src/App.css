@@ -341,7 +341,6 @@ display: block;
 .sub-menu-item {
   color: white;
   padding: 20px 10px;
-  width: 70px;
   border-bottom: 2px solid white;
   display: inline-block;
   text-align: center;
@@ -350,7 +349,6 @@ display: block;
 .sub-menu-item-check {
   color: black;
   background: white;
-  width: 70px;
   padding: 20px 10px;
   border-bottom: 2px solid white;
   display: inline-block;

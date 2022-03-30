@@ -30,6 +30,9 @@ function makeGetRequest(route, callback){
 ///
 
 
+export const newIssueReport = (data, callback) => {
+  makePostRequest('hr/newIssueReport', data, res => callback(res))
+}
 
 export const getItems = (callback) => {
   makeGetRequest('stock/getItems', res => callback(res))

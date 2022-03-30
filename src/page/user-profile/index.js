@@ -8,7 +8,7 @@ import numeral from 'numeral'
 import ProfileView from './profile-view'
 import TimetableView from './timetable-view'
 import SalaryView from './salary-view'
-import JobReportView from './job-report-view'
+import JobReportView from './job-report'
 import ProblemReportView from './problem-report-view'
 
 import {
@@ -161,7 +161,7 @@ export default class UserProfile extends React.Component {
           this.state.page === 'jobReport' && <JobReportView verify={this.verify} employeeId={this.state.id} changePage={this.changePage} />
         }
         {
-          this.state.page === 'problemReport' && <ProblemReportView changePage={this.changePage} />
+          this.state.page === 'problemReport' && <ProblemReportView employeeId={this.state.id} changePage={this.changePage} />
         }
       </div>
     )
